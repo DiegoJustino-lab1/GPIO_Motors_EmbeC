@@ -19,4 +19,8 @@ void gpio_write(uint32_t pin, uint32_t state);
 void gpio_toggle(uint32_t pin);
 uint32_t gpio_read(uint32_t pin); // Nova função para ler o estado do pino
 
+// Funções de controle de motor
+void motor_set_direction(uint32_t pin1, uint32_t pin2, uint32_t direction);
+void motor_set_speed(uint32_t pwm_pin, uint32_t speed);
+
 #endif

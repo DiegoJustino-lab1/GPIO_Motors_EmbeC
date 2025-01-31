@@ -1,53 +1,31 @@
-#include <stdint.h> 
+#include "gpio.h"
 
-// GPIO stuff
-#define GPIO_BASE 0x40020000
-#define GPIO_MODE (*(volatile uint32_t *)(GPIO_BASE + 0x00))
-#define GPIO_OUT  (*(volatile uint32_t *)(GPIO_BASE + 0x14))
-
-// Modes
-#define PIN_INPUT  0x0
-#define PIN_OUTPUT 0x1
-
-// Using pin 5
-#define MY_PIN 5
-
-// Set pin mode
-void set_pin_mode(uint32_t pin, uint32_t mode) {
-    GPIO_MODE &= ~(0x3 << (pin * 2));
-    GPIO_MODE |= (mode << (pin * 2));
-}
-
-// Turn pin on/off
-void set_pin(uint32_t pin, uint32_t on_off) {
-    if (on_off) {
-        GPIO_OUT |= (1 << pin);
-    } else {
-        GPIO_OUT &= ~(1 << pin);
-    }
-}
-
-// Flip pin state
-void flip_pin(uint32_t pin) {
-    GPIO_OUT ^= (1 << pin);
-}
+#define MOTOR_PIN1 5
+#define MOTOR_PIN2 6
+#define MOTOR_PWM_PIN 7
 
 int main() {
-    // Set pin 5 as output
-    set_pin_mode(MY_PIN, PIN_OUTPUT);
-    
+    // Configurar pinos do motor como saída
+    gpio_pin_mode(MOTOR_PIN1, GPIO_MODE_OUTPUT);
+    gpio_pin_mode(MOTOR_PIN2, GPIO_MODE_OUTPUT);
+    gpio_pin_mode(MOTOR_PWM_PIN, GPIO_MODE_OUTPUT);
+
     while (1) {
-        // Turn on
-        set_pin(MY_PIN, 1);
-        for (volatile int i = 0; i < 100000; i++);  // Wait a bit
+        // Definir direção do motor
+        motor_set_direction(MOTOR_PIN1, MOTOR_PIN2, 1); // 1 para frente, 0 para trás
         
-        // Turn off
-        set_pin(MY_PIN, 0);
-        for (volatile int i = 0; i < 100000; i++);  // Wait a bit
+        // Definir velocidade do motor
+        motor_set_speed(MOTOR_PWM_PIN, 500); // Ajuste o valor para controlar a velocidade
         
-        // Flip
-        flip_pin(MY_PIN);
-        for (volatile int i = 0; i < 100000; i++);  // Wait a bit
+        for (volatile int i = 0; i < 1000000; i++);  // Esperar um pouco
+        
+        // Inverter direção do motor
+        motor_set_direction(MOTOR_PIN1, MOTOR_PIN2, 0);
+        
+        // Definir velocidade do motor
+        motor_set_speed(MOTOR_PWM_PIN, 500); // Ajuste o valor para controlar a velocidade
+        
+        for (volatile int i = 0; i < 1000000; i++);  // Esperar um pouco
     }
     
     return 0;
